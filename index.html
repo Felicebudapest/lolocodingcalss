@@ -5,18 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lolo's Coding Class</title>
     <style>
-        /* Simple styling for demonstration */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+
+        h1 {
+            color: #4b8b3b;
+            text-align: center;
         }
+
+        h2 {
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #e6f7ff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
         .section {
             margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="number"], input[type="datetime-local"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #4b8b3b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3a6f2d;
+        }
+
+        .report-section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .lesson {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .lesson:last-child {
+            border-bottom: none;
+        }
+
+        .proposal-response {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .response-option {
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -24,20 +94,39 @@
     <div class="container">
         <h1>Lolo's Coding Class</h1>
 
+        <!-- Teacher's Input Section -->
+        <div class="section">
+            <h2>Teacher's Lesson Input</h2>
+            <label for="lesson-content">Lesson Content:</label>
+            <textarea id="lesson-content" placeholder="Enter the content of today's lesson..."></textarea>
+
+            <label for="homework">Homework for Next Lesson:</label>
+            <textarea id="homework" placeholder="Enter the homework for next time..."></textarea>
+
+            <label for="lesson-hours">Number of Hours:</label>
+            <input type="number" id="lesson-hours" placeholder="Enter the number of hours spent...">
+
+            <button onclick="addLesson()">Add Lesson</button>
+        </div>
+
+        <!-- Teacher's Proposal for Next Class -->
         <div class="section">
             <h2>Teacher's Proposal for Next Class</h2>
             <label for="next-class-datetime">Proposed Date and Time:</label>
             <input type="datetime-local" id="next-class-datetime">
+
             <button onclick="addProposal()">Submit Proposal</button>
         </div>
 
-        <div class="section">
+        <!-- Lessons Report Section -->
+        <div class="section report-section">
             <h2>Lessons Report</h2>
             <div id="lessons-container">
                 <!-- Lessons will appear here -->
             </div>
         </div>
 
+        <!-- Monthly Summary Section -->
         <div class="section">
             <h2>Monthly Summary</h2>
             <label for="month-name">Month:</label>
@@ -56,6 +145,7 @@
         let lessonCount = 0;
         let totalHours = 0;
 
+        // Load existing data from Local Storage on page load
         window.onload = function() {
             const storedLessons = JSON.parse(localStorage.getItem('lessons'));
             const storedTotalHours = parseFloat(localStorage.getItem('totalHours'));
@@ -70,6 +160,39 @@
                 document.getElementById('total-hours').innerText = totalHours;
             }
         };
+
+        function addLesson() {
+            const lessonContent = document.getElementById('lesson-content').value;
+            const homework = document.getElementById('homework').value;
+            const lessonHours = parseFloat(document.getElementById('lesson-hours').value);
+
+            if (!lessonContent || isNaN(lessonHours)) {
+                alert('Please fill out the lesson content and hours.');
+                return;
+            }
+
+            const lesson = {
+                content: lessonContent,
+                homework: homework,
+                hours: lessonHours
+            };
+
+            lessonCount++;
+            totalHours += lessonHours;
+
+            // Add the lesson to Local Storage
+            let lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+            lessons.push(lesson);
+            localStorage.setItem('lessons', JSON.stringify(lessons));
+            localStorage.setItem('totalHours', totalHours.toString());
+
+            addLessonToDOM(lesson);
+
+            // Clear input fields
+            document.getElementById('lesson-content').value = '';
+            document.getElementById('homework').value = '';
+            document.getElementById('lesson-hours').value = '';
+        }
 
         function addLessonToDOM(lesson) {
             const lessonDiv = document.createElement('div');
@@ -92,6 +215,7 @@
 
             alert(`Month: ${monthName}\nTotal Hours: ${totalHours}\nLessons: ${lessonCount}`);
 
+            // Clear Local Storage and reset the display
             localStorage.removeItem('lessons');
             localStorage.removeItem('totalHours');
 
@@ -115,8 +239,8 @@
             lessonDiv.innerHTML = `<strong>Teacher's Proposal for Next Class:</strong><br>
                                    <strong>Proposed Date and Time:</strong> ${new Date(proposalDatetime).toLocaleString()}<br>
                                    <div class="proposal-response">
-                                       <label><input type="radio" name="response" value="accept"> Accept</label>
-                                       <label><input type="radio" name="response" value="propose-alternative"> Propose Alternative Time</label>
+                                       <label class="response-option"><input type="radio" name="response" value="accept"> Accept</label>
+                                       <label class="response-option"><input type="radio" name="response" value="propose-alternative"> Propose Alternative Time</label>
                                        <textarea id="alternative-time" placeholder="If proposing an alternative, enter the preferred date and time here..."></textarea>
                                        <button onclick="acceptProposal()">Notify Teacher of Acceptance</button>
                                    </div>`;
@@ -129,13 +253,10 @@
             const response = document.querySelector('input[name="response"]:checked').value;
             if (response === 'accept') {
                 alert('The teacher has been notified of your acceptance.');
+                // You could store this acceptance in Local Storage or update the UI accordingly
                 localStorage.setItem('nextClassAccepted', true);
             } else {
                 const alternativeTime = document.getElementById('alternative-time').value;
                 alert(`You have proposed an alternative time: ${alternativeTime}`);
-                localStorage.setItem('nextClassAlternative', alternativeTime);
-            }
-        }
-    </script>
-</body>
-</html>
+                // You could store this alternative proposal in Local Storage or update the UI accordingly
+                localStorage.setItem('nextClassAlternative', alternativeTime
