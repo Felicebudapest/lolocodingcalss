@@ -1,120 +1,171 @@
-let lessonCount = 0;
-let totalHours = 0;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lolo's Coding Class</title>
+    <style>
+        /* Your CSS styling goes here */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lolo's Coding Class</h1>
 
-// Load existing data from Local Storage on page load
-window.onload = function() {
-    const storedLessons = JSON.parse(localStorage.getItem('lessons'));
-    const storedTotalHours = parseFloat(localStorage.getItem('totalHours'));
+        <!-- Your HTML content (form elements, etc.) goes here -->
 
-    if (storedLessons) {
-        storedLessons.forEach(lesson => addLessonToDOM(lesson));
-        lessonCount = storedLessons.length;
-    }
+        <div class="section">
+            <h2>Teacher's Proposal for Next Class</h2>
+            <label for="next-class-datetime">Proposed Date and Time:</label>
+            <input type="datetime-local" id="next-class-datetime">
+            <button onclick="addProposal()">Submit Proposal</button>
+        </div>
 
-    if (!isNaN(storedTotalHours)) {
-        totalHours = storedTotalHours;
-        document.getElementById('total-hours').innerText = totalHours;
-    }
-};
+        <!-- Lessons Report Section -->
+        <div class="section report-section">
+            <h2>Lessons Report</h2>
+            <div id="lessons-container">
+                <!-- Lessons will appear here -->
+            </div>
+        </div>
 
-function addLesson() {
-    const lessonContent = document.getElementById('lesson-content').value;
-    const homework = document.getElementById('homework').value;
-    const lessonHours = parseFloat(document.getElementById('lesson-hours').value);
+        <!-- Monthly Summary Section -->
+        <div class="section">
+            <h2>Monthly Summary</h2>
+            <label for="month-name">Month:</label>
+            <input type="text" id="month-name" placeholder="Enter the month name...">
+            
+            <div>
+                <label>Total Hours This Month:</label>
+                <span id="total-hours">0</span>
+            </div>
 
-    if (!lessonContent || isNaN(lessonHours)) {
-        alert('Please fill out the lesson content and hours.');
-        return;
-    }
+            <button onclick="resetMonth()">End Month & Reset</button>
+        </div>
+    </div>
 
-    const lesson = {
-        content: lessonContent,
-        homework: homework,
-        hours: lessonHours
-    };
+    <script>
+        // Place your JavaScript code here
+        let lessonCount = 0;
+        let totalHours = 0;
 
-    lessonCount++;
-    totalHours += lessonHours;
+        // Load existing data from Local Storage on page load
+        window.onload = function() {
+            const storedLessons = JSON.parse(localStorage.getItem('lessons'));
+            const storedTotalHours = parseFloat(localStorage.getItem('totalHours'));
 
-    // Add the lesson to Local Storage
-    let lessons = JSON.parse(localStorage.getItem('lessons')) || [];
-    lessons.push(lesson);
-    localStorage.setItem('lessons', JSON.stringify(lessons));
-    localStorage.setItem('totalHours', totalHours.toString());
+            if (storedLessons) {
+                storedLessons.forEach(lesson => addLessonToDOM(lesson));
+                lessonCount = storedLessons.length;
+            }
 
-    addLessonToDOM(lesson);
+            if (!isNaN(storedTotalHours)) {
+                totalHours = storedTotalHours;
+                document.getElementById('total-hours').innerText = totalHours;
+            }
+        };
 
-    // Clear input fields
-    document.getElementById('lesson-content').value = '';
-    document.getElementById('homework').value = '';
-    document.getElementById('lesson-hours').value = '';
-}
+        function addLesson() {
+            const lessonContent = document.getElementById('lesson-content').value;
+            const homework = document.getElementById('homework').value;
+            const lessonHours = parseFloat(document.getElementById('lesson-hours').value);
 
-function addLessonToDOM(lesson) {
-    const lessonDiv = document.createElement('div');
-    lessonDiv.className = 'lesson';
-    lessonDiv.innerHTML = `<strong>Lesson ${lessonCount}:</strong><br>
-                           <strong>Content:</strong> ${lesson.content}<br>
-                           <strong>Homework:</strong> ${lesson.homework}<br>
-                           <strong>Hours:</strong> ${lesson.hours}`;
+            if (!lessonContent || isNaN(lessonHours)) {
+                alert('Please fill out the lesson content and hours.');
+                return;
+            }
 
-    document.getElementById('lessons-container').appendChild(lessonDiv);
-    document.getElementById('total-hours').innerText = totalHours;
-}
+            const lesson = {
+                content: lessonContent,
+                homework: homework,
+                hours: lessonHours
+            };
 
-function resetMonth() {
-    const monthName = document.getElementById('month-name').value;
-    if (!monthName) {
-        alert('Please enter the month name.');
-        return;
-    }
+            lessonCount++;
+            totalHours += lessonHours;
 
-    alert(`Month: ${monthName}\nTotal Hours: ${totalHours}\nLessons: ${lessonCount}`);
+            // Add the lesson to Local Storage
+            let lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+            lessons.push(lesson);
+            localStorage.setItem('lessons', JSON.stringify(lessons));
+            localStorage.setItem('totalHours', totalHours.toString());
 
-    // Clear Local Storage and reset the display
-    localStorage.removeItem('lessons');
-    localStorage.removeItem('totalHours');
+            addLessonToDOM(lesson);
 
-    lessonCount = 0;
-    totalHours = 0;
-    document.getElementById('lessons-container').innerHTML = '';
-    document.getElementById('total-hours').innerText = totalHours;
-    document.getElementById('month-name').value = '';
-}
+            // Clear input fields
+            document.getElementById('lesson-content').value = '';
+            document.getElementById('homework').value = '';
+            document.getElementById('lesson-hours').value = '';
+        }
 
-function addProposal() {
-    const proposalDatetime = document.getElementById('next-class-datetime').value;
+        function addLessonToDOM(lesson) {
+            const lessonDiv = document.createElement('div');
+            lessonDiv.className = 'lesson';
+            lessonDiv.innerHTML = `<strong>Lesson ${lessonCount}:</strong><br>
+                                   <strong>Content:</strong> ${lesson.content}<br>
+                                   <strong>Homework:</strong> ${lesson.homework}<br>
+                                   <strong>Hours:</strong> ${lesson.hours}`;
 
-    if (!proposalDatetime) {
-        alert('Please select a date and time for the next class.');
-        return;
-    }
+            document.getElementById('lessons-container').appendChild(lessonDiv);
+            document.getElementById('total-hours').innerText = totalHours;
+        }
 
-    const lessonDiv = document.createElement('div');
-    lessonDiv.className = 'lesson';
-    lessonDiv.innerHTML = `<strong>Teacher's Proposal for Next Class:</strong><br>
-                           <strong>Proposed Date and Time:</strong> ${new Date(proposalDatetime).toLocaleString()}<br>
-                           <div class="proposal-response">
-                               <label class="response-option"><input type="radio" name="response" value="accept"> Accept</label>
-                               <label class="response-option"><input type="radio" name="response" value="propose-alternative"> Propose Alternative Time</label>
-                               <textarea id="alternative-time" placeholder="If proposing an alternative, enter the preferred date and time here..."></textarea>
-                               <button onclick="acceptProposal()">Notify Teacher of Acceptance</button>
-                           </div>`;
+        function resetMonth() {
+            const monthName = document.getElementById('month-name').value;
+            if (!monthName) {
+                alert('Please enter the month name.');
+                return;
+            }
 
-    document.getElementById('lessons-container').appendChild(lessonDiv);
-    document.getElementById('next-class-datetime').value = '';
-}
+            alert(`Month: ${monthName}\nTotal Hours: ${totalHours}\nLessons: ${lessonCount}`);
 
-function acceptProposal() {
-    const response = document.querySelector('input[name="response"]:checked').value;
-    if (response === 'accept') {
-        alert('The teacher has been notified of your acceptance.');
-        // You could store this acceptance in Local Storage or update the UI accordingly
-        localStorage.setItem('nextClassAccepted', true);
-    } else {
-        const alternativeTime = document.getElementById('alternative-time').value;
-        alert(`You have proposed an alternative time: ${alternativeTime}`);
-        // You could store this alternative proposal in Local Storage or update the UI accordingly
-        localStorage.setItem('nextClassAlternative', alternativeTime);
-    }
-}
+            // Clear Local Storage and reset the display
+            localStorage.removeItem('lessons');
+            localStorage.removeItem('totalHours');
+
+            lessonCount = 0;
+            totalHours = 0;
+            document.getElementById('lessons-container').innerHTML = '';
+            document.getElementById('total-hours').innerText = totalHours;
+            document.getElementById('month-name').value = '';
+        }
+
+        function addProposal() {
+            const proposalDatetime = document.getElementById('next-class-datetime').value;
+
+            if (!proposalDatetime) {
+                alert('Please select a date and time for the next class.');
+                return;
+            }
+
+            const lessonDiv = document.createElement('div');
+            lessonDiv.className = 'lesson';
+            lessonDiv.innerHTML = `<strong>Teacher's Proposal for Next Class:</strong><br>
+                                   <strong>Proposed Date and Time:</strong> ${new Date(proposalDatetime).toLocaleString()}<br>
+                                   <div class="proposal-response">
+                                       <label class="response-option"><input type="radio" name="response" value="accept"> Accept</label>
+                                       <label class="response-option"><input type="radio" name="response" value="propose-alternative"> Propose Alternative Time</label>
+                                       <textarea id="alternative-time" placeholder="If proposing an alternative, enter the preferred date and time here..."></textarea>
+                                       <button onclick="acceptProposal()">Notify Teacher of Acceptance</button>
+                                   </div>`;
+
+            document.getElementById('lessons-container').appendChild(lessonDiv);
+            document.getElementById('next-class-datetime').value = '';
+        }
+
+        function acceptProposal() {
+            const response = document.querySelector('input[name="response"]:checked').value;
+            if (response === 'accept') {
+                alert('The teacher has been notified of your acceptance.');
+                // You could store this acceptance in Local Storage or update the UI accordingly
+                localStorage.setItem('nextClassAccepted', true);
+            } else {
+                const alternativeTime = document.getElementById('alternative-time').value;
+                alert(`You have proposed an alternative time: ${alternativeTime}`);
+                // You could store this alternative proposal in Local Storage or update the UI accordingly
+                localStorage.setItem('nextClassAlternative', alternativeTime);
+            }
+        }
+    </script>
+</body>
+</html>
